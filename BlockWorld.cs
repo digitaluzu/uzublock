@@ -539,9 +539,7 @@ namespace Uzu
 					if (_config.OnChunkLoad != null) {
 						_config.OnChunkLoad (loadContext);
 						chunk.RequestRebuild ();
-					} else {
-						Debug.LogWarning ("OnChunkLoad callback is not specified.");
-					}						
+					}
 					
 					// Add to active chunk list.
 					_activeChunks.Add (chunkIndex, chunk);
