@@ -192,7 +192,7 @@ namespace Uzu
 			
 			// Duplicate load.
 			if (_chunksToLoad.ContainsKey (chunkIndex)) {
-				Debug.LogError (chunk.name + " is already requesting load.");
+				Debug.LogError ("Chunk [" + chunkIndex + "] is already requesting load.");
 				return;
 			}
 			
@@ -219,7 +219,7 @@ namespace Uzu
 			}
 			
 			if (_idleChunks.Contains (chunk)) {
-				Debug.LogError ("Attempting to return " + chunk.name + " to available pool, but it already exists.");
+				Debug.LogError ("Attempting to return chunk [" + chunkIndex + "] to available pool, but it already exists.");
 				return;
 			}
 			
@@ -244,8 +244,10 @@ namespace Uzu
 		#region Implementation.
 		private void PrepareChunk (Chunk chunk, Uzu.VectorI3 chunkIndex)
 		{
+#if UNITY_EDITOR
 			// Set name to make it easy to read.
 			chunk.name = "Chunk_" + chunkIndex.x + "_" + chunkIndex.y + "_" + chunkIndex.z;
+#endif // UNITY_EDITOR
 			
 			Vector3 chunkOffsetPos = chunkIndex * _config.ChunkSizeInBlocks * _config.BlockSize;
 			
