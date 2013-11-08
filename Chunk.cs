@@ -265,7 +265,7 @@ namespace Uzu
 						Block thisBlock = _blocks [x, y, z];
 						
 						Vector3 blockOffset = new Vector3 (x * blockSize + halfBlockSize, y * blockSize + halfBlockSize, z * blockSize + halfBlockSize);
-						LGDbg.DrawText(CachedXform.localPosition + blockOffset, ((int)thisBlock.BlockType).ToString());
+						Dbg.DrawText(CachedXform.localPosition + blockOffset, ((int)thisBlock.BlockType).ToString());
 						break;
 					}
 				}
