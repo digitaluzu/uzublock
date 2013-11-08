@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Uzu
 {
-/// <summary>
-/// Config for the creation of a dynamic block spawner.
-/// </summary>
+	/// <summary>
+	/// Config for the creation of a dynamic block spawner.
+	/// </summary>
 	public struct DynamicBlockSpawnerConfig
 	{
 		/// <summary>
