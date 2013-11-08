@@ -4,15 +4,15 @@ using System.Collections.Generic;
 namespace Uzu
 {
 	/// <summary>
-/// A single "chunk" within the block world.
-/// Each chunk represents a single mesh.
-/// Large chunks will require more time to rebuild due to the large number of vertices contained.
-/// Small chunks take less time to rebuild, but this will increase the number of meshes (draw calls) for the scene.
-/// Chunks with multiple materials are split into submeshes.
-/// </summary>
+	/// A single "chunk" within the block world.
+	/// Each chunk represents a single mesh.
+	/// Large chunks will require more time to rebuild due to the large number of vertices contained.
+	/// Small chunks take less time to rebuild, but this will increase the number of meshes (draw calls) for the scene.
+	/// Chunks with multiple materials are split into submeshes.
+	/// </summary>
 	[RequireComponent(typeof(MeshFilter))]
 	[RequireComponent(typeof(MeshRenderer))]
-	public class Chunk : Uzu.BaseBehaviour
+	public class Chunk : BaseBehaviour
 	{
 		/// <summary>
 		/// Does this chunk need to be rebuilt?
@@ -54,7 +54,7 @@ namespace Uzu
 				for (int i = 0; i < count; i++) {
 					Block block = _blocks [i];
 					BlockDesc blockDesc = _config.BlockDescs [(int)block.Type];
-					block.Color = new BlockColor (blockDesc.Color);
+					block.Color = blockDesc.Color;
 				}
 			}
 		}
@@ -73,14 +73,14 @@ namespace Uzu
 		/// Rebuilds this chunk's mesh.
 		/// </summary>
 		public void Rebuild ()
-		{		
-//		using (LGScopedSystemTimer timer = new LGScopedSystemTimer("Chunk Rebuild Time"))
+		{
+			//using (ScopedSystemTimer timer = new ScopedSystemTimer("Chunk Rebuild Time"))
 			{
 				// Rebuild batches in case materials have changed.
 				RebuildBatches ();
 			
 				float blockSize = _config.BlockSize.x;
-				Uzu.VectorI3 count = _blocks.CountXYZ;
+				VectorI3 count = _blocks.CountXYZ;
 				int countX = count.x;
 				int countY = count.y;
 				int countZ = count.z;
@@ -104,8 +104,8 @@ namespace Uzu
 							}
 						
 							BlockDesc blockDesc = _config.BlockDescs [(int)thisBlock.Type];
-						
-						#region Ignore hidden faces.
+							
+							#region Ignore hidden faces.
 							BlockFaceFlag activeFaces = FACEFLAG_FULL_MASK;
 						
 							// Apply user-specified ignore faces.
@@ -113,33 +113,33 @@ namespace Uzu
 						
 							// Disabled shared faces.
 							if (x > 0 &&
-							!_blocks [x - 1, y, z].IsEmpty) {
+								!_blocks [x - 1, y, z].IsEmpty) {
 								activeFaces &= ~BlockFaceFlag.Left;
 							}
 							if (x < lastX &&
-							!_blocks [x + 1, y, z].IsEmpty) {
+								!_blocks [x + 1, y, z].IsEmpty) {
 								activeFaces &= ~BlockFaceFlag.Right;
 							}
 						
 							if (y > 0 &&
-							!_blocks [x, y - 1, z].IsEmpty) {
+								!_blocks [x, y - 1, z].IsEmpty) {
 								activeFaces &= ~BlockFaceFlag.Bottom;
 							}
 							if (y < lastY &&
-							!_blocks [x, y + 1, z].IsEmpty) {
+								!_blocks [x, y + 1, z].IsEmpty) {
 								activeFaces &= ~BlockFaceFlag.Top;
 							}
 						
 							if (z > 0 &&
-							!_blocks [x, y, z - 1].IsEmpty) {
+								!_blocks [x, y, z - 1].IsEmpty) {
 								activeFaces &= ~BlockFaceFlag.Front;
 							}
 							if (z < lastZ &&
-							!_blocks [x, y, z + 1].IsEmpty) {
+								!_blocks [x, y, z + 1].IsEmpty) {
 								activeFaces &= ~BlockFaceFlag.Back;
 							}
-						#endregion
-						
+							#endregion
+							
 							if (createdFaceCount > _config.MaxVisibleBlockFaceCountPerChunk) {
 								Debug.Log ("Visibile face count exceeded maximum count of [" + _config.MaxVisibleBlockFaceCountPerChunk + "]. Ignoring faces.");
 								break;
@@ -160,8 +160,6 @@ namespace Uzu
 				{
 					// Fill the arrays out w/ default data so that no garbage remains.
 					{
-						_meshDesc.FillToCapacity ();
-					
 						for (int i = 0; i < _subMeshDescs.Count; i++) {
 							_subMeshDescs [i].FillToCapacity ();
 						}
@@ -169,7 +167,7 @@ namespace Uzu
 				
 					_mesh.vertices = _meshDesc.VertexList.ToArray ();
 					_mesh.normals = _meshDesc.NormalList.ToArray ();
-					_mesh.colors = _meshDesc.ColorList.ToArray ();
+					_mesh.colors32 = _meshDesc.ColorList.ToArray ();
 					_mesh.uv = _meshDesc.UVList.ToArray ();
 				
 					for (int i = 0; i < _subMeshDescs.Count; i++) {
@@ -188,7 +186,7 @@ namespace Uzu
 		/// <summary>
 		/// Gets the block type of a given block index.
 		/// </summary>
-		public BlockType GetBlockType (Uzu.VectorI3 blockChunkIndex)
+		public BlockType GetBlockType (VectorI3 blockChunkIndex)
 		{
 			Block block = _blocks [blockChunkIndex.x, blockChunkIndex.y, blockChunkIndex.z];
 			return block.Type;
@@ -197,7 +195,7 @@ namespace Uzu
 		/// <summary>
 		/// Changes the block type of a given block index.
 		/// </summary>
-		public void SetBlockType (Uzu.VectorI3 blockChunkIndex, BlockType blockType)
+		public void SetBlockType (VectorI3 blockChunkIndex, BlockType blockType)
 		{
 			Block block = _blocks [blockChunkIndex.x, blockChunkIndex.y, blockChunkIndex.z];
 		
@@ -215,13 +213,19 @@ namespace Uzu
 		/// <summary>
 		/// Changes the block color of a given block index.
 		/// </summary>
-		public void SetBlockColor (Uzu.VectorI3 blockChunkIndex, BlockColor blockColor)
+		public void SetBlockColor (VectorI3 blockChunkIndex, Color32 blockColor)
 		{
 			Block block = _blocks [blockChunkIndex.x, blockChunkIndex.y, blockChunkIndex.z];
 		
 			// Ignore if already the same.
-			if (block.Color == blockColor) {
-				return;
+			{
+				Color32 oldColor = block.Color;
+				if (oldColor.r == blockColor.r &&
+					oldColor.g == blockColor.g &&
+					oldColor.b == blockColor.b &&
+					oldColor.a == blockColor.a) {
+					return;
+				}
 			}
 		
 			block.Color = blockColor;
@@ -229,25 +233,30 @@ namespace Uzu
 			// Mark as dirty.
 			RequestRebuild ();
 		}
-	
-	#region Implementation.
+		
+		#region Implementation.
 		private BlockContainer _blocks;
 		private BlockWorldConfig _config;
 		private Mesh _mesh;
 		private MeshRenderer _meshRenderer;
 		private ChunkMeshDesc _meshDesc;
-		private Uzu.SmartList<ChunkSubMeshDesc> _subMeshDescs = new Uzu.SmartList<ChunkSubMeshDesc> ();
-		private Uzu.SmartList<ChunkSubMeshDesc> _subMeshDescPool = new Uzu.SmartList<ChunkSubMeshDesc> ();
-		private Uzu.FixedList<int> _subMeshLUT = new Uzu.FixedList<int> ((int)BlockType.MAX_COUNT);
+		private SmartList<ChunkSubMeshDesc> _subMeshDescs = new SmartList<ChunkSubMeshDesc> ();
+		private SmartList<ChunkSubMeshDesc> _subMeshDescPool = new SmartList<ChunkSubMeshDesc> ();
+		private FixedList<int> _subMeshLUT = new FixedList<int> ((int)BlockType.MAX_COUNT);
 		private bool _doesNeedRebuild;
 		private BlockFaceFlag FACEFLAG_FULL_MASK = (BlockFaceFlag)0xFF;
-	
+		
+		/// <summary>
+		/// Work array to prevent garbage generation.
+		/// </summary>
+		private SmartList<Material> _materialBatchesWork = new SmartList<Material> ();
+		
 #if false
 		public void OnDrawGizmosSelected()
 		{			
 			float blockSize = _config.BlockSize.x;
 			float halfBlockSize = blockSize * 0.5f;
-			Uzu.VectorI3 count = _blocks.CountXYZ;
+			VectorI3 count = _blocks.CountXYZ;
 			
 			#region Draw block type ids.
 			for (int x = 0; x < count.x; x++) {
@@ -269,7 +278,7 @@ namespace Uzu
 		/// Creates a single block at the given base position.
 		/// Returns the number of generated faces.
 		/// </summary>
-		private static int CreateBlock (BlockDesc blockDesc, Vector3 basePos, float blockSize, BlockFaceFlag activeFacesFlag, ChunkMeshDesc meshDesc, ChunkSubMeshDesc subMeshDesc, BlockColor blockColor)
+		private static int CreateBlock (BlockDesc blockDesc, Vector3 basePos, float blockSize, BlockFaceFlag activeFacesFlag, ChunkMeshDesc meshDesc, ChunkSubMeshDesc subMeshDesc, Color32 blockColor)
 		{
 			int faceCount = 0;
 		
@@ -281,13 +290,13 @@ namespace Uzu
 			float x = basePos.x;
 			float y = basePos.y;
 			float z = basePos.z;
-		
-			Uzu.FixedList<Vector3> vList = meshDesc.VertexList;
-			Uzu.FixedList<int> iList = subMeshDesc.IndexList;
-			Uzu.FixedList<Vector3> nList = meshDesc.NormalList;
-			Uzu.FixedList<Color> cList = meshDesc.ColorList;
-			Uzu.FixedList<Vector2> uvList = meshDesc.UVList;
-		
+			
+			FixedList<Vector3> vList = meshDesc.VertexList;
+			FixedList<int> iList = subMeshDesc.IndexList;
+			FixedList<Vector3> nList = meshDesc.NormalList;
+			FixedList<Color32> cList = meshDesc.ColorList;
+			FixedList<Vector2> uvList = meshDesc.UVList;
+			
 			// Vertices.
 			Vector3 v0 = new Vector3 (x, y, z);
 			Vector3 v1 = new Vector3 (x + blockSize, y, z);
@@ -315,7 +324,7 @@ namespace Uzu
 			// Starting index offset (offset by # of vertices).
 			int baseIdx = vList.Count;
 		
-		#region Polygon construction.
+			#region Polygon construction.
 			if ((activeFacesFlag & BlockFaceFlag.Front) != 0) {
 				vList.Add (v0);
 				vList.Add (v1);
@@ -491,9 +500,9 @@ namespace Uzu
 			// Set colors per vertex.
 			int vertCount = faceCount * 4;
 			for (int i = 0; i < vertCount; ++i) {
-				cList.Add (blockColor.Color);
+				cList.Add (blockColor);
 			}
-		#endregion
+			#endregion
 		
 			return faceCount;
 		}
@@ -520,8 +529,6 @@ namespace Uzu
 				_subMeshLUT.Clear ();
 			}
 			
-			List<Material> materialBatches = new List<Material> ();
-		
 			// Calculate the # of batches.
 			{			
 				// Reset LUT to default state.
@@ -535,13 +542,20 @@ namespace Uzu
 				// For each block...
 				int count = _blocks.Count;
 				for (int i = 0; i < count; i++) {
-					int blockTypeInt = (int)_blocks [i].Type;
+					Block block = _blocks [i];
+					
+					// Empty blocks don't use materials.
+					if (block.IsEmpty) {
+						continue;
+					}
+					
+					int blockTypeInt = (int)block.Type;
 					BlockDesc blockDesc = _config.BlockDescs [blockTypeInt];
 						
 					// Does a batch for this block desc already exist?
 					bool doesBatchExist = false;
-					for (int j = 0; j < materialBatches.Count; j++) {
-						if (materialBatches [j] == blockDesc.Material) {
+					for (int j = 0; j < _materialBatchesWork.Count; j++) {
+						if (_materialBatchesWork [j] == blockDesc.Material) {
 							// Add to main LUT.
 							int batchIndex = j;
 							_subMeshLUT [blockTypeInt] = batchIndex;
@@ -553,19 +567,19 @@ namespace Uzu
 				
 					// New batch discovered.
 					if (!doesBatchExist) {
-						int batchIndex = materialBatches.Count;
+						int batchIndex = _materialBatchesWork.Count;
 						_subMeshLUT [blockTypeInt] = batchIndex;
-						materialBatches.Add (blockDesc.Material);						
+						_materialBatchesWork.Add (blockDesc.Material);						
 					}
 				}
 			}
 			
-			int batchCount = materialBatches.Count;
-		
+			int batchCount = _materialBatchesWork.Count;
+			
 			// One subMesh per batch.
 			_mesh.subMeshCount = batchCount;
-			_meshRenderer.materials = materialBatches.ToArray ();
-		
+			_meshRenderer.materials = _materialBatchesWork.ToArray ();
+			
 			// Create mesh descs.
 			{
 				ChunkMeshCreationConfig config = GetChunkMeshCreationConfig ();
@@ -581,24 +595,26 @@ namespace Uzu
 					} else {
 						subMeshDesc = new ChunkSubMeshDesc (config);
 					}
-				
-					Uzu.Dbg.Assert (subMeshDesc != null);
+					
+					Dbg.Assert (subMeshDesc != null);
 					_subMeshDescs.Add (subMeshDesc);
 				}
 			}
 	
 #if UNITY_EDITOR
-		{
-			int expectedBatchCount = materialBatches.Count;
-			int actualBatchCount = _subMeshDescs.Count;
-			if (actualBatchCount != expectedBatchCount) {
-				Debug.LogError("Invalid batch count: " + actualBatchCount + "/" + expectedBatchCount);
+			{
+				int expectedBatchCount = _materialBatchesWork.Count;
+				int actualBatchCount = _subMeshDescs.Count;
+				if (actualBatchCount != expectedBatchCount) {
+					Debug.LogError("Invalid batch count: " + actualBatchCount + "/" + expectedBatchCount);
+				}
 			}
-		}
 #endif
-
+			
+			// Clear for re-use next frame.
+			_materialBatchesWork.Clear ();
 		}
-	
+		
 		private ChunkMeshCreationConfig GetChunkMeshCreationConfig ()
 		{
 			const int FACE_COUNT_PER_BLOCK = 6;
@@ -625,6 +641,6 @@ namespace Uzu
 				_mesh.MarkDynamic ();
 			}
 		}
-	#endregion
+		#endregion
 	}
 }

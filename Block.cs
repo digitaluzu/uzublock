@@ -14,74 +14,44 @@ namespace Uzu
 		/// A solid block, that when touched, causes death.
 		/// </summary>
 		SOLID,
+		/// <summary>
+		/// Standard grid (bottom side).
+		/// </summary>
+		NORMAL_BOTTOM,
+		/// <summary>
+		/// Standard grid (right side).
+		/// </summary>
+		NORMAL_RIGHT,
+		/// <summary>
+		/// Standard grid (top side).
+		/// </summary>
+		NORMAL_TOP,
+		/// <summary>
+		/// Standard grid (left side).
+		/// </summary>
+		NORMAL_LEFT,
+		_EMPTY_BLOCK_TYPE_,
+		/// <summary>
+		/// Animated block that disappears as solid when the player gets close.
+		/// </summary>
+		ANIMATED_HIDE_SOLID,
 		
 		MAX_COUNT,
-	};
-	
-	public struct BlockColor
-	{
-		public Color32 Color {
-			get;
-			set;
-		}
-		
-		public BlockColor (Color color)
-		{
-			Color = color;
-		}
-		
-		public static implicit operator BlockColor (Color color)
-		{
-			return new BlockColor (color);
-		}
-		
-		public static bool operator == (BlockColor lhs, BlockColor rhs)
-		{
-			Color32 lc = lhs.Color;
-			Color32 rc = rhs.Color;
-			return lc.r == rc.r && lc.g == rc.g && lc.b == rc.b && lc.a == rc.a;
-		}
-		
-		public static bool operator != (BlockColor lhs, BlockColor rhs)
-		{
-			return !(lhs == rhs);
-		}
-		
-		public override bool Equals (object obj)
-		{
-			if (obj.GetType () == typeof(BlockColor)) {
-				BlockColor c = (BlockColor)obj;
-				return this == c;
-			}
-	
-			return false;
-		}
-		
-		public override int GetHashCode ()
-		{
-			return base.GetHashCode ();
-		}
 	};
 	
 	/// <summary>
 	/// A block description.
 	/// One description is stored for each block type.
 	/// </summary>
-	[System.Serializable]
 	public class BlockDesc
-	{
-		[SerializeField]
-		private Color _color;
-		[SerializeField]
-		private Material _material;
-		
-		public Color Color { get { return _color; } set { _color = value; } }
+	{	
+		public Color32 Color { get; set; }
 	
-		public Material Material { get { return _material; } set { _material = value; } }
+		public Material Material { get; set; }
 		
 		/// <summary>
 		/// Allows user-specified ignore faces to be set on a per-block-type basis.
-		/// For example, if CyBlockFaceFlag.Back is specified, all blocks of this
+		/// For example, if BlockFaceFlag.Back is specified, all blocks of this
 		/// type will have their back faces (z-axis) ignored.
 		/// Depending on the type of game, this is useful if the movement directions
 		/// of the player are limited.
@@ -97,7 +67,7 @@ namespace Uzu
 	{
 		public BlockType Type { get; set; }
 	
-		public BlockColor Color { get; set; }
+		public Color32 Color { get; set; }
 		
 		/// <summary>
 		/// Is this block an "EMPTY" block type?
@@ -110,10 +80,10 @@ namespace Uzu
 	/// </summary>
 	public class BlockContainer
 	{	
-		public BlockContainer (Uzu.VectorI3 countXYZ)
+		public BlockContainer (VectorI3 countXYZ)
 		{
 			_countXYZ = countXYZ;
-			_count = Uzu.VectorI3.ElementProduct (_countXYZ);
+			_count = VectorI3.ElementProduct (_countXYZ);
 			_countYZ = _countXYZ.y * _countXYZ.z;
 			_blocks = new Block[_count];
 			
@@ -123,7 +93,7 @@ namespace Uzu
 			}
 		}
 		
-		public Uzu.VectorI3 CountXYZ {
+		public VectorI3 CountXYZ {
 			get { return _countXYZ; }
 		}
 		
@@ -165,7 +135,7 @@ namespace Uzu
 		}
 		
 		private Block[] _blocks;
-		private Uzu.VectorI3 _countXYZ;
+		private VectorI3 _countXYZ;
 		private int _count;
 		private int _countYZ;
 	}

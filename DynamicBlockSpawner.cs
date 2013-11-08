@@ -20,12 +20,12 @@ namespace Uzu
 	}
 
 	/// <summary>
-/// Manages 'dynamic' blocks.
-/// Blocks are grouped together in a single mesh for performance.
-/// </summary>
+	/// Manages 'dynamic' blocks.
+	/// Blocks are grouped together in a single mesh for performance.
+	/// </summary>
 	[RequireComponent(typeof(MeshFilter))]
 	[RequireComponent(typeof(MeshRenderer))]
-	public class DynamicBlockSpawner : Uzu.BaseBehaviour
+	public class DynamicBlockSpawner : BaseBehaviour
 	{	
 		/// <summary>
 		/// Perform initialization.
@@ -46,12 +46,12 @@ namespace Uzu
 		
 			// Block desc allocation.
 			{
-				_blockDescs = new Uzu.FixedList<DynamicBlockDesc> (config.MaxBlockCount);
-				_availableBlockDescIndices = new Uzu.FixedList<int> (config.MaxBlockCount);
-				FillBlockDescArrays ();
-			
-				Uzu.Dbg.Assert (_blockDescs.Count == config.MaxBlockCount);
-				Uzu.Dbg.Assert (_availableBlockDescIndices.Count == config.MaxBlockCount);
+				_activeBlockDescs = new FixedList<DynamicBlockDesc> (config.MaxBlockCount);
+				_availableBlockDescs = new FixedList<DynamicBlockDesc> (config.MaxBlockCount);
+				
+				for (int i = 0; i < _availableBlockDescs.Capacity; i++) {
+					_availableBlockDescs.Add (new DynamicBlockDesc ());
+				}
 			}
 		}
 	
@@ -60,30 +60,31 @@ namespace Uzu
 		/// </summary>
 		public void SpawnBlock (DynamicBlockCreationConfig config)
 		{
-			if (_availableBlockDescIndices.Count == 0) {
-				Debug.LogWarning ("Cannot spawn any more dynamic blocks. Capacity [" + _blockDescs.Capacity + "] reached.");
+			if (_availableBlockDescs.Count == 0) {
+				Debug.LogWarning ("Cannot spawn any more dynamic blocks. Capacity [" + _activeBlockDescs.Capacity + "] reached.");
 				return;
 			}
-		
-			// Get an available index from the pool.
-			int availableIndex;
+			
+			// Get an available block from the pool.
+			DynamicBlockDesc blockDesc;
 			{
-				int lastIndex = _availableBlockDescIndices.Count - 1;
-				availableIndex = _availableBlockDescIndices [lastIndex];
-				_availableBlockDescIndices.RemoveAt (lastIndex);
+				int lastIndex = _availableBlockDescs.Count - 1;
+				blockDesc = _availableBlockDescs [lastIndex];
+				_availableBlockDescs.RemoveAt (lastIndex);
 			}
-		
-			// Verify this entry is actually available.
-			Uzu.Dbg.Assert (_blockDescs [availableIndex].IsActive == false);
-		
+			
+			Dbg.Assert (blockDesc != null);
+			
 			// Set up the desc.
-			DynamicBlockDesc blockDesc = new DynamicBlockDesc ();
-			blockDesc.Config = config;
-			blockDesc.ElapsedTime = 0.0f;
-			blockDesc.IsActive = true;
-			_blockDescs [availableIndex] = blockDesc;
+			{
+				blockDesc.Config = config;
+				blockDesc.ElapsedTime = 0.0f;
+			}
+			
+			// Activate.
+			_activeBlockDescs.Add (blockDesc);
 		}
-	
+		
 		/// <summary>
 		/// Clears all dynamic blocks.
 		/// </summary>
@@ -91,43 +92,33 @@ namespace Uzu
 		{
 			_mesh.Clear ();
 			_meshDesc.Clear ();
-			_meshDesc.FillToCapacity ();
 			_meshIndicesDesc.Clear ();
 			_meshIndicesDesc.FillToCapacity ();
-		
-			// Reset block descs.
+			
+			// Reset block descs - return to available pool.
 			{
-				_blockDescs.Clear ();
-				_availableBlockDescIndices.Clear ();
-				FillBlockDescArrays ();
+				for (int i = 0; i < _activeBlockDescs.Count; i++) {
+					_availableBlockDescs.Add (_activeBlockDescs [i]);
+				}
+				_activeBlockDescs.Clear ();
 			}
 		}
-		
-	#region Implementation.
+			
+		#region Implementation.
 		private const int FACE_COUNT_PER_BLOCK = 6;
 		private Mesh _mesh;
 		private ChunkMeshDesc _meshDesc;
 		private ChunkSubMeshDesc _meshIndicesDesc;
-		private Uzu.FixedList<DynamicBlockDesc> _blockDescs;
-		private Uzu.FixedList<int> _availableBlockDescIndices;
-	
-		private struct DynamicBlockDesc
+		private FixedList<DynamicBlockDesc> _activeBlockDescs;
+		private FixedList<DynamicBlockDesc> _availableBlockDescs;
+		
+		private class DynamicBlockDesc
 		{
 			public DynamicBlockCreationConfig Config { get; set; }
 
 			public float ElapsedTime { get; set; }
+		}
 		
-			public bool IsActive { get; set; }
-		}
-	
-		private void FillBlockDescArrays ()
-		{
-			for (int i = 0; i < _blockDescs.Capacity; i++) {
-				_blockDescs.Add (new DynamicBlockDesc ());
-				_availableBlockDescIndices.Add (i);
-			}
-		}
-	
 		private void Update ()
 		{
 			// Clear the mesh for rebuilding.
@@ -139,21 +130,24 @@ namespace Uzu
 		
 			// Rebuild the mesh for all the active blocks.
 			{
-				for (int i = 0; i < _blockDescs.Count; i++) {
-					DynamicBlockDesc blockDesc = _blockDescs [i];
-				
-					// Skip disabled blocks.
-					if (!blockDesc.IsActive) {
-						continue;
-					}
-
+				for (int i = 0; i < _activeBlockDescs.Count; /*i++*/) {
+					DynamicBlockDesc blockDesc = _activeBlockDescs [i];
+	
 					// Expired block?
 					if (blockDesc.ElapsedTime >= blockDesc.Config.Duration) {
 						// Deactivate.
-						blockDesc.IsActive = false;
-						_blockDescs [i] = blockDesc;
-						_availableBlockDescIndices.Add (i);
-					
+						{
+							// Remove from active list - swap with last item.
+							{
+								int lastIndex = _activeBlockDescs.Count - 1;
+								_activeBlockDescs [i] = _activeBlockDescs [lastIndex];
+								_activeBlockDescs.RemoveAt (lastIndex);
+							}
+							
+							// Move back to available pool.
+							_availableBlockDescs.Add (blockDesc);
+						}
+						
 						// Trigger callback.
 						if (blockDesc.Config.OnDynamicBlockDie != null) {
 							blockDesc.Config.OnDynamicBlockDie (blockDesc.Config.DynamicBlockDieContext);
@@ -167,8 +161,8 @@ namespace Uzu
 				
 					// Progress time.
 					blockDesc.ElapsedTime += Time.deltaTime;
-				
-					_blockDescs [i] = blockDesc;
+					
+					i++;
 				}
 			}
 		
@@ -176,13 +170,12 @@ namespace Uzu
 			{
 				// Fill arrays out with default data so that no garbage remains.
 				{
-					_meshDesc.FillToCapacity ();
 					_meshIndicesDesc.FillToCapacity ();
 				}
 			
 				_mesh.vertices = _meshDesc.VertexList.ToArray ();
 				_mesh.normals = _meshDesc.NormalList.ToArray ();
-				_mesh.colors = _meshDesc.ColorList.ToArray ();
+				_mesh.colors32 = _meshDesc.ColorList.ToArray ();
 				_mesh.uv = _meshDesc.UVList.ToArray ();
 			
 				_mesh.triangles = _meshIndicesDesc.IndexList.ToArray ();
@@ -200,13 +193,13 @@ namespace Uzu
 			Vector3 size = config.StartScale * (1.0f - t) + config.EndScale * t;
 			Vector3 centerPos = config.StartPosition * (1.0f - t) + config.EndPosition * t;
 			Vector3 pos = centerPos - (size * 0.5f);
-		
-			Uzu.FixedList<Vector3> vList = meshDesc.VertexList;
-			Uzu.FixedList<Vector3> nList = meshDesc.NormalList;
-			Uzu.FixedList<Color> cList = meshDesc.ColorList;
-			Uzu.FixedList<Vector2> uvList = meshDesc.UVList;
-			Uzu.FixedList<int> iList = meshIndicesDesc.IndexList;
-		
+			
+			FixedList<Vector3> vList = meshDesc.VertexList;
+			FixedList<Vector3> nList = meshDesc.NormalList;
+			FixedList<Color32> cList = meshDesc.ColorList;
+			FixedList<Vector2> uvList = meshDesc.UVList;
+			FixedList<int> iList = meshIndicesDesc.IndexList;
+			
 			// Vertices.
 			Vector3 v0 = new Vector3 (pos.x, pos.y, pos.z);
 			Vector3 v1 = new Vector3 (pos.x + size.x, pos.y, pos.z);
@@ -237,7 +230,7 @@ namespace Uzu
 			// Starting index offset (offset by # of vertices).
 			int baseIdx = vList.Count;
 		
-		#region Polygon construction.
+			#region Polygon construction.
 			// Front.
 			{
 				vList.Add (v0);
@@ -399,7 +392,7 @@ namespace Uzu
 			for (int i = 0; i < vertCount; i++) {
 				cList.Add (blockColor);
 			}
-		#endregion
+			#endregion
 		}
 	
 		protected override void Awake ()
@@ -415,6 +408,6 @@ namespace Uzu
 				_mesh.MarkDynamic ();
 			}
 		}
-	#endregion
+		#endregion
 	}
 }
