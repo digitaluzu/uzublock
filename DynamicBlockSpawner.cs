@@ -121,6 +121,11 @@ namespace Uzu
 		
 		private void Update ()
 		{
+			// Skip all processing if there are no active blocks.
+			if (_activeBlockDescs.Count == 0) {
+				return;
+			}
+
 			// Clear the mesh for rebuilding.
 			{
 				_mesh.Clear ();
