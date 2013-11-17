@@ -189,12 +189,21 @@ namespace Uzu
 				
 				PrepareChunk (chunk, chunkIndex);
 			}
-			
+
+#if UNITY_EDITOR
 			// Duplicate load.
-			if (_chunksToLoad.ContainsKey (chunkIndex)) {
-				Debug.LogError ("Chunk [" + chunkIndex + "] is already requesting load.");
-				return;
+			{
+				if (_chunksToLoad.ContainsKey (chunkIndex)) {
+					Debug.LogError ("Chunk [" + chunkIndex + "] is already requesting load.");
+					return;
+				}
+
+				if (_activeChunks.ContainsKey (chunkIndex)) {
+					Debug.LogError ("Chunk [" + chunkIndex + "] is already active.");
+					return;
+				}
 			}
+#endif // UNITY_EDITOR
 			
 			// Queue up to load.
 			_chunksToLoad.Add (chunkIndex, chunk);
@@ -232,13 +241,18 @@ namespace Uzu
 					_config.OnChunkUnload (unloadContext);
 				}
 			}
-			
+
 			// Cleanup.
 			chunk.TearDown ();
 			_activeChunks.Remove (chunkIndex);
 			
 			// Return to pool for re-use.
 			_idleChunks.Add (chunk);
+
+#if UNITY_EDITOR
+			// Set name to make it easy to read.
+			chunk.name = "Chunk - Inactive";
+#endif // UNITY_EDITOR
 		}
 		
 		#region Implementation.
