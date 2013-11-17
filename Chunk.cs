@@ -575,6 +575,11 @@ namespace Uzu
 			}
 			
 			int batchCount = _materialBatchesWork.Count;
+
+			// No materials used (empty chunk).
+			if (batchCount == 0) {
+				return;
+			}
 			
 			// One subMesh per batch.
 			_mesh.subMeshCount = batchCount;
