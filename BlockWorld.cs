@@ -475,57 +475,53 @@ namespace Uzu
 			// These coordinates are then offset by a block base position in order to give
 			// the actual face coordinates of any block in the world.
 			{
+				Vector3 blockSize = _config.BlockSize;
+
 				// X
 				{
-					float blockSizeX = _config.BlockSize.x;
-					
 					_xNegFaceVertices = new Vector3[] {
-						new Vector3 (0.0f, 0.0f, 0.0f),// * blockSizeX,
-						new Vector3 (0.0f, 1.0f, 0.0f) * blockSizeX,
-						new Vector3 (0.0f, 1.0f, 1.0f) * blockSizeX,
-						new Vector3 (0.0f, 0.0f, 1.0f) * blockSizeX,
+						Vector3.Scale(new Vector3 (0.0f, 0.0f, 0.0f), blockSize),
+						Vector3.Scale(new Vector3 (0.0f, 1.0f, 0.0f), blockSize),
+						Vector3.Scale(new Vector3 (0.0f, 1.0f, 1.0f), blockSize),
+						Vector3.Scale(new Vector3 (0.0f, 0.0f, 1.0f), blockSize),
 					};
 					_xPosFaceVertices = new Vector3[] {
-						new Vector3 (1.0f, 0.0f, 0.0f) * blockSizeX,
-						new Vector3 (1.0f, 0.0f, 1.0f) * blockSizeX,
-						new Vector3 (1.0f, 1.0f, 1.0f) * blockSizeX,
-						new Vector3 (1.0f, 1.0f, 0.0f) * blockSizeX,
+						Vector3.Scale(new Vector3 (1.0f, 0.0f, 0.0f), blockSize),
+						Vector3.Scale(new Vector3 (1.0f, 0.0f, 1.0f), blockSize),
+						Vector3.Scale(new Vector3 (1.0f, 1.0f, 1.0f), blockSize),
+						Vector3.Scale(new Vector3 (1.0f, 1.0f, 0.0f), blockSize),
 					};
 				}
 				
 				// Y
 				{
-					float blockSizeY = _config.BlockSize.y;
-					
 					_yNegFaceVertices = new Vector3[] {
-						new Vector3 (1.0f, 0.0f, 1.0f) * blockSizeY,
-						new Vector3 (1.0f, 0.0f, 0.0f) * blockSizeY,
-						new Vector3 (0.0f, 0.0f, 0.0f),// * blockSizeY,
-						new Vector3 (0.0f, 0.0f, 1.0f) * blockSizeY,
+						Vector3.Scale(new Vector3 (1.0f, 0.0f, 1.0f), blockSize),
+						Vector3.Scale(new Vector3 (1.0f, 0.0f, 0.0f), blockSize),
+						Vector3.Scale(new Vector3 (0.0f, 0.0f, 0.0f), blockSize),
+						Vector3.Scale(new Vector3 (0.0f, 0.0f, 1.0f), blockSize),
 					};
 					_yPosFaceVertices = new Vector3[] {
-						new Vector3 (1.0f, 1.0f, 0.0f) * blockSizeY,
-						new Vector3 (1.0f, 1.0f, 1.0f) * blockSizeY,
-						new Vector3 (0.0f, 1.0f, 1.0f) * blockSizeY,
-						new Vector3 (0.0f, 1.0f, 0.0f) * blockSizeY,
+						Vector3.Scale(new Vector3 (1.0f, 1.0f, 0.0f), blockSize),
+						Vector3.Scale(new Vector3 (1.0f, 1.0f, 1.0f), blockSize),
+						Vector3.Scale(new Vector3 (0.0f, 1.0f, 1.0f), blockSize),
+						Vector3.Scale(new Vector3 (0.0f, 1.0f, 0.0f), blockSize),
 					};
 				}
 				
 				// Z
 				{
-					float blockSizeZ = _config.BlockSize.z;
-					
 					_zNegFaceVertices = new Vector3[] {
-						new Vector3 (1.0f, 0.0f, 0.0f) * blockSizeZ,
-						new Vector3 (1.0f, 1.0f, 0.0f) * blockSizeZ,
-						new Vector3 (0.0f, 1.0f, 0.0f) * blockSizeZ,
-						new Vector3 (0.0f, 0.0f, 0.0f),// * blockSizeZ,
+						Vector3.Scale(new Vector3 (1.0f, 0.0f, 0.0f), blockSize),
+						Vector3.Scale(new Vector3 (1.0f, 1.0f, 0.0f), blockSize),
+						Vector3.Scale(new Vector3 (0.0f, 1.0f, 0.0f), blockSize),
+						Vector3.Scale(new Vector3 (0.0f, 0.0f, 0.0f), blockSize),
 					};
 					_zPosFaceVertices = new Vector3[] {
-						new Vector3 (0.0f, 0.0f, 1.0f) * blockSizeZ,
-						new Vector3 (0.0f, 1.0f, 1.0f) * blockSizeZ,
-						new Vector3 (1.0f, 1.0f, 1.0f) * blockSizeZ,
-						new Vector3 (1.0f, 0.0f, 1.0f) * blockSizeZ,
+						Vector3.Scale(new Vector3 (0.0f, 0.0f, 1.0f), blockSize),
+						Vector3.Scale(new Vector3 (0.0f, 1.0f, 1.0f), blockSize),
+						Vector3.Scale(new Vector3 (1.0f, 1.0f, 1.0f), blockSize),
+						Vector3.Scale(new Vector3 (1.0f, 0.0f, 1.0f), blockSize),
 					};
 				}
 			}
