@@ -79,7 +79,7 @@ namespace Uzu
 				// Rebuild batches in case materials have changed.
 				RebuildBatches ();
 			
-				float blockSize = _config.BlockSize.x;
+				Vector3 blockSize = _config.BlockSize;
 				VectorI3 count = _blocks.CountXYZ;
 				int countX = count.x;
 				int countY = count.y;
@@ -148,7 +148,7 @@ namespace Uzu
 							// Create the block.
 							int subMeshIndex = _subMeshLUT [(int)thisBlock.Type];
 							ChunkSubMeshDesc subMeshDesc = _subMeshDescs [subMeshIndex];
-							Vector3 blockOffset = new Vector3 (x * blockSize, y * blockSize, z * blockSize);
+							Vector3 blockOffset = new Vector3 (x * blockSize.x, y * blockSize.y, z * blockSize.z);
 							createdFaceCount += CreateBlock (blockDesc, blockOffset, blockSize, activeFaces, _meshDesc, subMeshDesc, thisBlock.Color);
 						
 							++currentIndex;
@@ -278,7 +278,7 @@ namespace Uzu
 		/// Creates a single block at the given base position.
 		/// Returns the number of generated faces.
 		/// </summary>
-		private static int CreateBlock (BlockDesc blockDesc, Vector3 basePos, float blockSize, BlockFaceFlag activeFacesFlag, ChunkMeshDesc meshDesc, ChunkSubMeshDesc subMeshDesc, Color32 blockColor)
+		private static int CreateBlock (BlockDesc blockDesc, Vector3 basePos, Vector3 blockSize, BlockFaceFlag activeFacesFlag, ChunkMeshDesc meshDesc, ChunkSubMeshDesc subMeshDesc, Color32 blockColor)
 		{
 			int faceCount = 0;
 		
@@ -299,13 +299,13 @@ namespace Uzu
 			
 			// Vertices.
 			Vector3 v0 = new Vector3 (x, y, z);
-			Vector3 v1 = new Vector3 (x + blockSize, y, z);
-			Vector3 v2 = new Vector3 (x + blockSize, y + blockSize, z);
-			Vector3 v3 = new Vector3 (x, y + blockSize, z);
-			Vector3 v4 = new Vector3 (x + blockSize, y, z + blockSize);
-			Vector3 v5 = new Vector3 (x, y, z + blockSize);
-			Vector3 v6 = new Vector3 (x, y + blockSize, z + blockSize);
-			Vector3 v7 = new Vector3 (x + blockSize, y + blockSize, z + blockSize);
+			Vector3 v1 = new Vector3 (x + blockSize.x, y, z);
+			Vector3 v2 = new Vector3 (x + blockSize.x, y + blockSize.y, z);
+			Vector3 v3 = new Vector3 (x, y + blockSize.y, z);
+			Vector3 v4 = new Vector3 (x + blockSize.x, y, z + blockSize.z);
+			Vector3 v5 = new Vector3 (x, y, z + blockSize.z);
+			Vector3 v6 = new Vector3 (x, y + blockSize.y, z + blockSize.z);
+			Vector3 v7 = new Vector3 (x + blockSize.x, y + blockSize.y, z + blockSize.z);
 		
 			// Normals.
 			Vector3 up = Vector3.up;
