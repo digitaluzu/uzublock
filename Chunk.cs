@@ -583,6 +583,15 @@ namespace Uzu
 			
 			// One subMesh per batch.
 			_mesh.subMeshCount = batchCount;
+
+			// Destroy existing materials to prevent leak.
+			{
+				int oldMaterialCount = _meshRenderer.materials.Length;
+				for (int i = oldMaterialCount - 1; i >= 0; i--) {
+					Destroy(_meshRenderer.materials[i]);
+				}
+			}
+
 			_meshRenderer.materials = _materialBatchesWork.ToArray ();
 			
 			// Create mesh descs.
