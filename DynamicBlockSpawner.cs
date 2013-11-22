@@ -34,6 +34,7 @@ namespace Uzu
 		{
 			// Assign material.
 			MeshRenderer meshRenderer = GetComponent<MeshRenderer> ();
+			Destroy (meshRenderer.material);
 			meshRenderer.material = config.Material;
 		
 			// Mesh buffer creation.
