@@ -218,6 +218,7 @@ namespace Uzu
 			
 			// Currently in load queue, so just remove it.
 			if (_chunksToLoad.TryGetValue (chunkIndex, out chunk)) {
+				_chunksToLoad.Remove (chunkIndex);
 				_idleChunks.Add (chunk);
 				return;
 			}		
