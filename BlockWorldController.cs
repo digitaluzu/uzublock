@@ -35,13 +35,11 @@ namespace Uzu
 	#endif
 			
 			_isDirty = true;
-			_isForceReload = false;
 			_config = config;
 			_loadedChunks = new Uzu.FixedList<Uzu.VectorI3> (Uzu.VectorI3.ElementProduct (_config.LoadedChunkCount));
 		}
 		
 		private bool _isDirty;
-		private bool _isForceReload;
 		private Vector3 _currentPosition;
 		private Uzu.FixedList<Uzu.VectorI3> _loadedChunks;
 		private Uzu.VectorI3? _previousMinChunkIndex = null;
@@ -66,7 +64,19 @@ namespace Uzu
 		public void ForceReload ()
 		{
 			_isDirty = true;
-			_isForceReload = true;
+
+			// Perform unloading immediately to prevent any weird update
+			// order bugs between BlockWorldController and BlockWorld.
+			{
+				BlockWorld blockWorld = _config.TargetBlockWorld;
+
+				for (int i = 0; i < _loadedChunks.Count; i++) {
+					Uzu.VectorI3 chunkIndex = _loadedChunks [i];
+					blockWorld.UnloadChunk (chunkIndex);
+				}
+				_loadedChunks.Clear ();
+				_previousMinChunkIndex = null;
+			}
 		}
 		
 		private void Update ()
@@ -88,14 +98,7 @@ namespace Uzu
 			
 			// Unload.
 			{
-				if (_isForceReload) {
-					for (int i = 0; i < _loadedChunks.Count; i++) {
-						Uzu.VectorI3 chunkIndex = _loadedChunks [i];
-						blockWorld.UnloadChunk (chunkIndex);
-					}
-					_loadedChunks.Clear ();
-					_previousMinChunkIndex = null;
-				} else if (_previousMinChunkIndex.HasValue && _previousMinChunkIndex.Value != minChunkIndex) {
+				if (_previousMinChunkIndex.HasValue && _previousMinChunkIndex.Value != minChunkIndex) {
 					for (int x = 0; x < loadedChunkCount.x; x++) {
 						for (int y = 0; y < loadedChunkCount.y; y++) {
 							for (int z = 0; z < loadedChunkCount.z; z++) {
@@ -141,8 +144,7 @@ namespace Uzu
 					}
 				}
 			}
-			
-			_isForceReload = false;
+
 			_previousMinChunkIndex = minChunkIndex;
 		}
 		
