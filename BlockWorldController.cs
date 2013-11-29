@@ -6,7 +6,7 @@ namespace Uzu
 	/// <summary>
 	/// Configuration for the block world controller.
 	/// </summary>
-	public class BlockWorldControllerConfig
+	public struct BlockWorldControllerConfig
 	{
 		public BlockWorld TargetBlockWorld { get; set; }
 	
@@ -21,7 +21,12 @@ namespace Uzu
 	/// </summary>
 	public class BlockWorldController : Uzu.BaseBehaviour
 	{
-		private BlockWorldControllerConfig _config;
+		/// <summary>
+		/// Gets a copy of the config used to originally initialize this block world controller.
+		/// </summary>
+		public BlockWorldControllerConfig Config {
+			get { return _config; }
+		}
 		
 		/// <summary>
 		/// Perform initialization.
@@ -33,12 +38,18 @@ namespace Uzu
 				Debug.LogWarning ("Zero dimension LoadedChunkCount. No chunks will be loaded.");
 			}
 	#endif
+
+			// If the object is being re-initialized, clear current contents.
+			if (_loadedChunks != null) {
+				ForceReload ();
+			}
 			
 			_isDirty = true;
 			_config = config;
 			_loadedChunks = new Uzu.FixedList<Uzu.VectorI3> (Uzu.VectorI3.ElementProduct (_config.LoadedChunkCount));
 		}
-		
+
+		private BlockWorldControllerConfig _config;
 		private bool _isDirty;
 		private Vector3 _currentPosition;
 		private Uzu.FixedList<Uzu.VectorI3> _loadedChunks;
