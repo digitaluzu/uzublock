@@ -47,16 +47,6 @@ namespace Uzu
 			if (_meshDesc == null) {
 				_meshDesc = new ChunkMeshDesc (GetChunkMeshCreationConfig ());
 			}
-			
-			// Initialize all blocks to their default colors.
-			{
-				int count = _blocks.Count;
-				for (int i = 0; i < count; i++) {
-					Block block = _blocks [i];
-					BlockDesc blockDesc = _config.BlockDescs [(int)block.Type];
-					block.Color = blockDesc.Color;
-				}
-			}
 		}
 	
 		/// <summary>

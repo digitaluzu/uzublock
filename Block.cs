@@ -44,9 +44,7 @@ namespace Uzu
 	/// One description is stored for each block type.
 	/// </summary>
 	public class BlockDesc
-	{	
-		public Color32 Color { get; set; }
-	
+	{
 		public Material Material { get; set; }
 		
 		/// <summary>
