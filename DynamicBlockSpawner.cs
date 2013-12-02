@@ -36,6 +36,8 @@ namespace Uzu
 			MeshRenderer meshRenderer = GetComponent<MeshRenderer> ();
 			Destroy (meshRenderer.material);
 			meshRenderer.material = config.Material;
+			meshRenderer.castShadows = false;
+			meshRenderer.receiveShadows = false;
 		
 			// Mesh buffer creation.
 			{
@@ -196,8 +198,8 @@ namespace Uzu
 		
 			float t = blockDesc.ElapsedTime / config.Duration;
 		
-			Vector3 size = config.StartScale * (1.0f - t) + config.EndScale * t;
-			Vector3 centerPos = config.StartPosition * (1.0f - t) + config.EndPosition * t;
+			Vector3 size = Vector3.Lerp (config.StartScale, config.EndScale, t);
+			Vector3 centerPos = Vector3.Lerp (config.StartPosition, config.EndPosition, t);
 			Vector3 pos = centerPos - (size * 0.5f);
 			
 			FixedList<Vector3> vList = meshDesc.VertexList;
@@ -231,7 +233,7 @@ namespace Uzu
 			Vector2 uv01 = new Vector2 (0.0f, 1.0f);
 		
 			// Color.
-			Color blockColor = (config.StartColor * (1.0f - t)) + (config.EndColor * t);
+			Color32 blockColor = Color32.Lerp(config.StartColor, config.EndColor, t);
 		
 			// Starting index offset (offset by # of vertices).
 			int baseIdx = vList.Count;

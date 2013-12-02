@@ -16,9 +16,9 @@ namespace Uzu
 	
 		public Vector3 EndScale { get; set; }
 	
-		public Color StartColor { get; set; }
+		public Color32 StartColor { get; set; }
 	
-		public Color EndColor { get; set; }
+		public Color32 EndColor { get; set; }
 	
 		public float Duration { get; set; }
 		
