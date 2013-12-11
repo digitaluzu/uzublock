@@ -4,39 +4,19 @@ using System.Collections.Generic;
 namespace Uzu
 {
 	/// <summary>
-	/// All block types.
+	/// All system block types.
 	/// </summary>
 	public enum BlockType : byte
 	{
+		/// <summary>
+		/// An empty block.
+		/// </summary>
 		EMPTY = 0,
-		
 		/// <summary>
-		/// A solid block, that when touched, causes death.
+		/// The # of block types used by the system.
+		/// First user block type should start at this value.
 		/// </summary>
-		SOLID,
-		/// <summary>
-		/// Standard grid (bottom side).
-		/// </summary>
-		NORMAL_BOTTOM,
-		/// <summary>
-		/// Standard grid (right side).
-		/// </summary>
-		NORMAL_RIGHT,
-		/// <summary>
-		/// Standard grid (top side).
-		/// </summary>
-		NORMAL_TOP,
-		/// <summary>
-		/// Standard grid (left side).
-		/// </summary>
-		NORMAL_LEFT,
-		_EMPTY_BLOCK_TYPE_,
-		/// <summary>
-		/// Animated block that disappears as solid when the player gets close.
-		/// </summary>
-		ANIMATED_HIDE_SOLID,
-		
-		MAX_COUNT,
+		SYSTEM_COUNT,
 	};
 	
 	/// <summary>

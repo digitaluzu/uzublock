@@ -40,12 +40,11 @@ namespace Uzu
 		{
 			_config = worldConfig;
 		
+			// First initialization?
 			if (_blocks == null) {
 				_blocks = new BlockContainer (_config.ChunkSizeInBlocks);
-			}
-		
-			if (_meshDesc == null) {
 				_meshDesc = new ChunkMeshDesc (GetChunkMeshCreationConfig ());
+				_subMeshLUT = new FixedList<int> (worldConfig.MaxBlockTypeCount);
 			}
 		}
 	
@@ -232,7 +231,7 @@ namespace Uzu
 		private ChunkMeshDesc _meshDesc;
 		private SmartList<ChunkSubMeshDesc> _subMeshDescs = new SmartList<ChunkSubMeshDesc> ();
 		private SmartList<ChunkSubMeshDesc> _subMeshDescPool = new SmartList<ChunkSubMeshDesc> ();
-		private FixedList<int> _subMeshLUT = new FixedList<int> ((int)BlockType.MAX_COUNT);
+		private FixedList<int> _subMeshLUT;
 		private bool _doesNeedRebuild;
 		private BlockFaceFlag FACEFLAG_FULL_MASK = (BlockFaceFlag)0xFF;
 		
@@ -524,7 +523,7 @@ namespace Uzu
 				// Reset LUT to default state.
 				{
 					const int INVALID_BATCH_INDEX = -1;
-					for (int i = 0; i < (int)BlockType.MAX_COUNT; i++) {
+					for (int i = 0; i < _subMeshLUT.Capacity; i++) {
 						_subMeshLUT.Add (INVALID_BATCH_INDEX);
 					}
 				}

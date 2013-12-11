@@ -30,15 +30,25 @@ namespace Uzu
 		/// and collision data is not affected.
 		/// </summary>
 		public int MaxVisibleBlockFaceCountPerChunk { get; set; }
+
+		/// <summary>
+		/// Maximum # of block types used in the application.
+		/// </summary>
+		public int MaxBlockTypeCount { get; set; }
 		
 		public BlockDesc[] BlockDescs {
 			get { return _blockDescs; }
 			set {
 	#if UNITY_EDITOR
 				{
+					if (MaxBlockTypeCount == 0) {
+						Debug.LogError ("Please initialize MaxBlockTypeCount before setting block descs.");
+						return;
+					}
+
 					// Verify size is adequate.
-					if (value.Length < (int)BlockType.MAX_COUNT) {
-						Debug.LogError ("Invalid block desc list. Must contain at least [" + (int)BlockType.MAX_COUNT + "] entries.");
+					if (value.Length != MaxBlockTypeCount) {
+						Debug.LogError ("Invalid block desc list. Must contain [" + MaxBlockTypeCount + "] entries.");
 						return;
 					}
 					// Verify contents.
