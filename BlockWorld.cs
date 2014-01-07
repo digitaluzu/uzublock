@@ -278,8 +278,10 @@ namespace Uzu
 			
 			// Make chunk a child of world.
 			GameObject chunkGO = chunk.gameObject;
-			chunkGO.transform.parent = CachedXform;
-			chunkGO.transform.localPosition = chunkOffsetPos;
+			Transform chunkXform = chunkGO.transform;
+			chunkXform.parent = CachedXform;
+			chunkXform.localPosition = chunkOffsetPos;
+			chunkXform.localScale = Vector3.one;
 			
 			// Perform initialization.
 			chunk.Initialize (_config);
@@ -292,7 +294,8 @@ namespace Uzu
 		{
 			if (IsValidWorldBlockIndex (blockWorldIndex)) {
 				VectorI3 chunkIndex = blockWorldIndex / _config.ChunkSizeInBlocks;
-				if (_activeChunks.TryGetValue (chunkIndex, out chunk)) {
+				if (_activeChunks.TryGetValue (chunkIndex, out chunk) ||
+				    _chunksToLoad.TryGetValue (chunkIndex, out chunk)) {
 					blockChunkIndex = blockWorldIndex - (chunkIndex * _config.ChunkSizeInBlocks);
 					return true;
 				}
@@ -392,7 +395,7 @@ namespace Uzu
 		/// <summary>
 		/// Performs line collision check on block world.
 		/// </summary>
-		public bool CheckCollision (Vector3 fromPos, Vector3 toPos, out CollisionResult result, bool ignoreEmpty = false)
+		public bool CheckCollision (Vector3 fromPos, Vector3 toPos, out CollisionResult result)
 		{
 			result = new CollisionResult ();
 			
@@ -405,7 +408,7 @@ namespace Uzu
 			}
 			
 			// If start index originates in solid box, treat as collision.
-			if (ignoreEmpty || GetBlockType (fromBlockWorldIdx) != BlockType.EMPTY) {
+			if (GetBlockType (fromBlockWorldIdx) != BlockType.EMPTY) {
 				result.BlockWorldIndex = fromBlockWorldIdx;
 				result.Position = fromPos;
 				result.Normal = Vector3.forward;	// When originating in a solid box, hitNormal has no meaning.
@@ -442,7 +445,7 @@ namespace Uzu
 				}
 	
 				// Is there a collision with the next block?
-				if (ignoreEmpty || GetBlockType (nextResult.BlockWorldIndex) != BlockType.EMPTY) {
+				if (GetBlockType (nextResult.BlockWorldIndex) != BlockType.EMPTY) {
 					result = nextResult;
 					return true;
 				}
