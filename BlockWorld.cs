@@ -352,6 +352,19 @@ namespace Uzu
 			}
 			return BlockType.EMPTY;
 		}
+
+		/// <summary>
+		/// Gets the color of block at specified blockWorldIndex.
+		/// </summary>
+		public Color32 GetBlockColor (VectorI3 blockWorldIndex)
+		{
+			Chunk chunk;
+			VectorI3 blockChunkIndex;
+			if (GetChunk (blockWorldIndex, out chunk, out blockChunkIndex)) {
+				return chunk.GetBlockColor (blockChunkIndex);
+			}
+			return new Color32 ();
+		}
 		
 		public void SetBlockType (VectorI3 blockWorldIndex, BlockType blockType)
 		{

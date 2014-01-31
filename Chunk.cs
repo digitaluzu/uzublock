@@ -180,6 +180,15 @@ namespace Uzu
 			Block block = _blocks [blockChunkIndex.x, blockChunkIndex.y, blockChunkIndex.z];
 			return block.Type;
 		}
+
+		/// <summary>
+		/// Gets the block color of a given block index.
+		/// </summary>
+		public Color32 GetBlockColor (VectorI3 blockChunkIndex)
+		{
+			Block block = _blocks [blockChunkIndex.x, blockChunkIndex.y, blockChunkIndex.z];
+			return block.Color;
+		}
 	
 		/// <summary>
 		/// Changes the block type of a given block index.
