@@ -5,6 +5,25 @@ namespace Uzu
 {
 	/// <summary>
 	/// All system block types.
+	/// 
+	/// To customize in the application:
+	/// 
+	/// 1). For applications that only need two block types
+	/// 	(empty and solid), just use Uzu.BlockType as-is,
+	/// 
+	/// 2). For applications that have more than two block types,
+	/// 	new block types can be defined like so:
+	/// 
+	/// 	public enum MyBlockType : byte
+	/// 	{
+	/// 		MY_BLOCK_TYPE_0 = Uzu.BlockType.USER_START_VALUE,
+	/// 		MY_BLOCK_TYPE_1,
+	/// 		...
+	/// 	}
+	/// 	
+	/// 	The EMPTY block type will always be defined by the system.
+	/// 	If user block types are defined, the default system SOLID
+	/// 	block type will be overwritten by the first user block type.
 	/// </summary>
 	public enum BlockType : byte
 	{
@@ -13,10 +32,13 @@ namespace Uzu
 		/// </summary>
 		EMPTY = 0,
 		/// <summary>
-		/// The # of block types used by the system.
-		/// First user block type should start at this value.
+		/// A basic non-empty block.
 		/// </summary>
-		SYSTEM_COUNT,
+		SOLID,
+		/// <summary>
+		/// The first user-defined block type start value.
+		/// </summary>
+		USER_START_VALUE = EMPTY + 1,
 	};
 	
 	/// <summary>
