@@ -36,6 +36,11 @@ namespace Uzu
 		/// </summary>
 		SOLID,
 		/// <summary>
+		/// The number of blocks used by the system by
+		/// default if no user block types are defined.
+		/// </summary>
+		SYSTEM_DEFAULT_COUNT,
+		/// <summary>
 		/// The first user-defined block type start value.
 		/// </summary>
 		USER_START_VALUE = EMPTY + 1,
