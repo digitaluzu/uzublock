@@ -5,7 +5,16 @@ namespace Uzu
 {
 	public static class BlockFormat
 	{
-		public const int CURRENT_VERSION = 1;
+		public const int CURRENT_VERSION = 2;
+
+		static public int MagicNumber {
+			get { return
+				'B' << 24 |
+				'L' << 16 |
+				'C' << 8 |
+				'K';
+			}
+		}
 
 		static public string Extension {
 			get { return "blk"; }

@@ -22,6 +22,9 @@ namespace Uzu
 			BlockFormat.Header header = PrepareHeader (blocks);
 			BlockFormat.Data data = PrepareData (blocks);
 
+			// Embed at beginning of file.
+			writer.Write (BlockFormat.MagicNumber);
+
 			{
 				writer.Write (header.version);
 				writer.Write (header.count.x);

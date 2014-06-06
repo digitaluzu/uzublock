@@ -18,13 +18,22 @@ namespace Uzu
 		#region Implementation.
 		private static BlockFormat.Data ReadImpl (BinaryReader reader)
 		{
+			// Verify file integrity.
+			{
+				int magicNumber = reader.ReadInt32 ();
+				if (magicNumber != BlockFormat.MagicNumber) {
+					Debug.LogError ("Invalid file format (corrupt magic number): " + magicNumber);
+					return null;
+				}
+			}
+
 			int version = reader.ReadInt32 ();
 
 			// Handle support of multiple released data versions.
 			// Deprecate support for versions as necessary.
 			switch (version) {
-			case 1:
-				return ReadVersion_1 (version, reader);
+			case 2:
+				return ReadVersion_2 (version, reader);
 			default:
 				Debug.LogError ("Unsupported version: " + version);
 				break;
@@ -33,7 +42,7 @@ namespace Uzu
 			return null;
 		}
 
-		private static BlockFormat.Data ReadVersion_1 (int version, BinaryReader reader)
+		private static BlockFormat.Data ReadVersion_2 (int version, BinaryReader reader)
 		{
 			BlockFormat.Header header = new BlockFormat.Header ();
 
