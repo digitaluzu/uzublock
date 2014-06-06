@@ -7,6 +7,10 @@ namespace Uzu
 	{
 		public const int CURRENT_VERSION = 1;
 
+		static public string Extension {
+			get { return "blk"; }
+		}
+
 		public class Header
 		{
 			public int version;
