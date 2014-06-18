@@ -7,7 +7,7 @@ namespace Uzu
 	{
 		public const int CURRENT_VERSION = 2;
 
-		static public int MagicNumber {
+		static public uint MagicNumber {
 			get { return
 				'B' << 24 |
 				'L' << 16 |

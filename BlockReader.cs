@@ -20,7 +20,7 @@ namespace Uzu
 		{
 			// Verify file integrity.
 			{
-				int magicNumber = reader.ReadInt32 ();
+				uint magicNumber = reader.ReadUInt32 ();
 				if (magicNumber != BlockFormat.MagicNumber) {
 					Debug.LogError ("Invalid file format (corrupt magic number): " + magicNumber);
 					return null;
