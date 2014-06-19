@@ -32,8 +32,8 @@ namespace Uzu
 			// Handle support of multiple released data versions.
 			// Deprecate support for versions as necessary.
 			switch (version) {
-			case 2:
-				return ReadVersion_2 (version, reader);
+			case 0:
+				return ReadVersion_0 (version, reader);
 			default:
 				Debug.LogError ("Unsupported version: " + version);
 				break;
@@ -42,7 +42,7 @@ namespace Uzu
 			return null;
 		}
 
-		private static BlockFormat.Data ReadVersion_2 (uint version, BinaryReader reader)
+		private static BlockFormat.Data ReadVersion_0 (uint version, BinaryReader reader)
 		{
 			BlockFormat.Header header = new BlockFormat.Header ();
 
