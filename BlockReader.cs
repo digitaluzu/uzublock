@@ -27,7 +27,7 @@ namespace Uzu
 				}
 			}
 
-			int version = reader.ReadInt32 ();
+			uint version = reader.ReadUInt32 ();
 
 			// Handle support of multiple released data versions.
 			// Deprecate support for versions as necessary.
@@ -42,7 +42,7 @@ namespace Uzu
 			return null;
 		}
 
-		private static BlockFormat.Data ReadVersion_2 (int version, BinaryReader reader)
+		private static BlockFormat.Data ReadVersion_2 (uint version, BinaryReader reader)
 		{
 			BlockFormat.Header header = new BlockFormat.Header ();
 

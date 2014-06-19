@@ -5,7 +5,7 @@ namespace Uzu
 {
 	public static class BlockFormat
 	{
-		public const int CURRENT_VERSION = 2;
+		public const uint CURRENT_VERSION = 2;
 
 		static public uint MagicNumber {
 			get { return
@@ -22,7 +22,7 @@ namespace Uzu
 
 		public class Header
 		{
-			public int version;
+			public uint version;
 			public VectorI3 count;
 		}
 
